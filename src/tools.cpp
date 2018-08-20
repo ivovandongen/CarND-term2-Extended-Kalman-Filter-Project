@@ -38,8 +38,30 @@ Eigen::VectorXd Tools::CalculateRMSE(const std::vector<Eigen::VectorXd> &estimat
 }
 
 Eigen::MatrixXd Tools::CalculateJacobian(const Eigen::VectorXd &x_state) {
-    /**
-    TODO:
-      * Calculate a Jacobian here.
-    */
+    Eigen::MatrixXd Hj(3, 4);
+
+    // recover state parameters
+    float px = x_state(0);
+    float py = x_state(1);
+    float vx = x_state(2);
+    float vy = x_state(3);
+
+    //check division by zero
+    if (px == 0 && py == 0) {
+        std::cout << "Division by 0" << std::endl;
+        return Hj;
+    }
+
+    // compute the Jacobian matrix
+    double c1 = px * px + py * py;
+    double c2 = sqrt(c1);
+    double c3 = pow(c1, 3 / 2);
+    double c4 = vx * py;
+    double c5 = vy * px;
+
+    Hj << px / c2, py / c2, 0, 0,
+            -(py / c1), px / c1, 0, 0,
+            py * (c4 - c5) / c3, px * (c5 - c4) / c3, px / c2, py / c2;
+
+    return Hj;
 }

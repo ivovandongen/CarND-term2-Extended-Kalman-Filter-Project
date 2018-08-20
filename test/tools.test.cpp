@@ -33,3 +33,17 @@ TEST(Tools, MSRE) {
 
     ASSERT_TRUE(expected.isApprox(rmse));
 }
+
+TEST(Tools, Jacobian) {
+    Eigen::VectorXd x_predicted(4);
+    x_predicted << 1, 2, 0.2, 0.4;
+
+    Eigen::MatrixXd Hj = Tools::CalculateJacobian(x_predicted);
+
+    Eigen::MatrixXd expected(3, 4);
+    expected << 0.447214, 0.894427, 0, 0,
+            -0.4, 0.2, 0, 0,
+            0, 0, 0.447214, 0.894427;
+
+    ASSERT_TRUE(expected.isApprox(Hj, 0.0001));
+}
