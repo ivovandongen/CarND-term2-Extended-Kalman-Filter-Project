@@ -6,4 +6,4 @@ add_executable(utest
     ${TEST_DIR}/main.cpp
 )
 
-target_link_libraries(utest PUBLIC gtest)
+target_link_libraries(utest PUBLIC gtest core)
