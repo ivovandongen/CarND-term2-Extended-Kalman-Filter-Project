@@ -15,6 +15,8 @@ if (UNIX)
     add_compile_options(-Wno-deprecated-register)
 endif()
 
+# Main executable
+
 add_executable(ExtendedKF
     ${CMAKE_SOURCE_DIR}/src/main.cpp
     ${CMAKE_SOURCE_DIR}/src/tools.cpp
@@ -26,3 +28,6 @@ add_executable(ExtendedKF
 )
 
 target_link_libraries(ExtendedKF Eigen libuWS)
+
+# Tests
+add_subdirectory(test)
