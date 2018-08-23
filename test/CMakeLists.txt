@@ -12,3 +12,7 @@ add_executable(utest
 target_include_directories(utest PRIVATE ${TEST_DIR})
 
 target_link_libraries(utest PUBLIC gtest core)
+
+if (DO_CLANG_TIDY)
+    set_target_properties(utest PROPERTIES CXX_CLANG_TIDY "${DO_CLANG_TIDY}")
+endif ()

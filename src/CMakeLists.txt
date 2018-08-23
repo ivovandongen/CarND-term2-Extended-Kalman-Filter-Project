@@ -22,3 +22,7 @@ target_link_libraries(core PUBLIC
 	json
 	libuWS
 )
+
+if (DO_CLANG_TIDY)
+	set_target_properties(core PROPERTIES CXX_CLANG_TIDY "${DO_CLANG_TIDY}")
+endif ()

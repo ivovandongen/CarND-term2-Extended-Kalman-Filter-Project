@@ -9,19 +9,55 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 if (UNIX)
     # Silence warnings in Eigen
     add_compile_options(-Wno-deprecated-register)
-endif()
+endif ()
 
+# Clang format
 
-# Main executable
+file(GLOB_RECURSE SRC_FILES src/*.cpp src/*.hpp)
+file(GLOB_RECURSE TEST_FILES src/*.cpp src/*.hpp)
+set(ALL_SOURCES ${SRC_FILES} ${TEST_FILES})
+
+find_program(CLANG_FORMAT NAMES "clang-format" DOC "Path to clang-format executable")
+if (NOT CLANG_FORMAT)
+    message(STATUS "clang-format not found.")
+else ()
+    message(STATUS "clang-format found: ${CLANG_FORMAT}")
+    add_custom_target(
+        clang-format
+        COMMAND ${CLANG_FORMAT}
+        -style=file
+        -i
+        ${ALL_SOURCES}
+    )
+endif ()
+
+# Clang tidy
+
+find_program(CLANG_TIDY NAMES "clang-tidy" DOC "Path to clang-tidy executable")
+if (NOT CLANG_TIDY)
+    message(STATUS "clang-tidy not found.")
+else ()
+    message(STATUS "clang-tidy found: ${CLANG_TIDY}")
+    set(DO_CLANG_TIDY "${CLANG_TIDY}" "-fix;-fix-errors")
+endif ()
+
+# Core sources
 
 add_subdirectory(src)
 
+# Main executable
+
 add_executable(ExtendedKF
     ${CMAKE_SOURCE_DIR}/src/main.cpp
-)
+    )
 
 target_link_libraries(ExtendedKF core)
+
+#if (DO_CLANG_TIDY)
+#    set_target_properties(ExtendedKF PROPERTIES CXX_CLANG_TIDY "${DO_CLANG_TIDY}")
+#endif ()
 
 # Tests
 
 add_subdirectory(test)
+

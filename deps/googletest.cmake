@@ -11,6 +11,10 @@ add_library(gtest STATIC
 )
 
 target_include_directories(gtest
-    PUBLIC ${GTEST_DIR}/include
+    PRIVATE ${GTEST_DIR}/include
     PRIVATE ${GTEST_DIR}
+)
+
+target_include_directories(gtest
+    SYSTEM INTERFACE ${GTEST_DIR}/include
 )

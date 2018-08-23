@@ -33,5 +33,9 @@ target_include_directories(libuWS
     PRIVATE ${OPENSSL_INCLUDE_DIR}
     PRIVATE ${ZLIB_INCLUDE_DIRS}
     PRIVATE ${LibUV_INCLUDE_DIR}
-    PUBLIC ${UWEBSOCKETS_DIR}/src
+    SYSTEM PRIVATE ${UWEBSOCKETS_DIR}/src
+)
+
+target_include_directories(libuWS
+    SYSTEM INTERFACE ${UWEBSOCKETS_DIR}/src
 )
