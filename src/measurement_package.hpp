@@ -2,11 +2,22 @@
 
 #include <Eigen/Dense>
 
+#include <vector>
+
 class MeasurementPackage {
 public:
-    long long timestamp_;
+    enum SensorType { LASER, RADAR };
 
-    enum SensorType { LASER, RADAR } sensor_type_;
+    using Timestamp = long long;
 
+    MeasurementPackage() = default;
+
+    MeasurementPackage(SensorType type, Timestamp timestamp, std::vector<double> measurements)
+        : sensor_type_(type), timestamp_(timestamp) {
+        raw_measurements_ = Eigen::Map<Eigen::VectorXd>(measurements.data(), measurements.size());
+    }
+
+    SensorType sensor_type_;
+    Timestamp timestamp_;
     Eigen::VectorXd raw_measurements_;
 };
