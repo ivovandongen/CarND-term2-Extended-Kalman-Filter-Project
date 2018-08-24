@@ -1,5 +1,3 @@
 #include <test.hpp>
 
-TEST(KalmanFilter, update) {
-
-}
+TEST(KalmanFilter, update) {}

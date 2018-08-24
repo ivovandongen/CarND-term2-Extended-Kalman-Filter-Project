@@ -26,12 +26,10 @@ TEST(Tools, MSRE) {
     g << 3.1, 3.1, 0.5, 0.4;
     ground_truth.push_back(g);
 
-    auto rmse = Tools::CalculateRMSE(estimations, ground_truth);
-
     Eigen::VectorXd expected(4);
     expected << 0.1, 0.1, 0.1, 0.1;
 
-    ASSERT_TRUE(expected.isApprox(rmse));
+    ASSERT_TRUE(expected.isApprox(Tools::CalculateRMSE(estimations, ground_truth)));
 }
 
 TEST(Tools, Jacobian) {
@@ -41,9 +39,7 @@ TEST(Tools, Jacobian) {
     Eigen::MatrixXd Hj = Tools::CalculateJacobian(x_predicted);
 
     Eigen::MatrixXd expected(3, 4);
-    expected << 0.447214, 0.894427, 0, 0,
-            -0.4, 0.2, 0, 0,
-            0, 0, 0.447214, 0.894427;
+    expected << 0.447214, 0.894427, 0, 0, -0.4, 0.2, 0, 0, 0, 0, 0.447214, 0.894427;
 
     ASSERT_TRUE(expected.isApprox(Hj, 0.0001));
 }

@@ -1,7 +1,7 @@
 #include <tools.hpp>
 
-#include <vector>
 #include <iostream>
+#include <vector>
 
 Tools::Tools() = default;
 
@@ -20,20 +20,20 @@ Eigen::VectorXd Tools::CalculateRMSE(const std::vector<Eigen::VectorXd> &estimat
         return rmse;
     }
 
-    //accumulate squared residuals
+    // accumulate squared residuals
     for (int i = 0; i < estimations.size(); ++i) {
         Eigen::VectorXd res = estimations[i] - ground_truth[i];
         res = res.array() * res.array();
         rmse += res;
     }
 
-    //calculate the mean
+    // calculate the mean
     rmse = rmse / estimations.size();
 
-    //calculate the squared root
+    // calculate the squared root
     rmse = rmse.array().sqrt();
 
-    //return the result
+    // return the result
     return rmse;
 }
 
@@ -41,12 +41,12 @@ Eigen::MatrixXd Tools::CalculateJacobian(const Eigen::VectorXd &x_state) {
     Eigen::MatrixXd Hj(3, 4);
 
     // recover state parameters
-    float px = x_state(0);
-    float py = x_state(1);
-    float vx = x_state(2);
-    float vy = x_state(3);
+    double px = x_state(0);
+    double py = x_state(1);
+    double vx = x_state(2);
+    double vy = x_state(3);
 
-    //check division by zero
+    // check division by zero
     if (px == 0 && py == 0) {
         std::cout << "Division by 0" << std::endl;
         return Hj;
@@ -59,9 +59,9 @@ Eigen::MatrixXd Tools::CalculateJacobian(const Eigen::VectorXd &x_state) {
     double c4 = vx * py;
     double c5 = vy * px;
 
-    Hj << px / c2, py / c2, 0, 0,
-            -(py / c1), px / c1, 0, 0,
-            py * (c4 - c5) / c3, px * (c5 - c4) / c3, px / c2, py / c2;
+    Hj.row(0) << px / c2, py / c2, 0, 0;
+    Hj.row(1) << -(py / c1), px / c1, 0, 0;
+    Hj.row(2) << py * (c4 - c5) / c3, px * (c5 - c4) / c3, px / c2, py / c2;
 
     return Hj;
 }
