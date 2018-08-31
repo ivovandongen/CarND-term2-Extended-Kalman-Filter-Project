@@ -25,14 +25,18 @@ public:
     /**
      * Run the whole flow of the Kalman Filter from here.
      */
-    void ProcessMeasurement(const MeasurementPackage &measurement_pack);
+    void processMeasurement(const MeasurementPackage &measurement_pack);
+
+    const KalmanFilter &getKalmanFilter() const { return ekf_; }
+
+private:
+    void initialize(const MeasurementPackage &measurement_pack);
 
     /**
      * Kalman Filter update and prediction math lives in here.
      */
     KalmanFilter ekf_;
 
-private:
     // check whether the tracking toolbox was initialized or not (first measurement)
     bool is_initialized_{false};
 
@@ -41,6 +45,8 @@ private:
 
     // tool object used to compute Jacobian and RMSE
     Tools tools;
+
+    // Matrices for (E)KF that are not part of the Kalman filter state
     Eigen::MatrixXd R_laser_;
     Eigen::MatrixXd R_radar_;
     Eigen::MatrixXd H_laser_;

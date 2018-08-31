@@ -13,18 +13,16 @@ using std::vector;
  * Constructor.
  */
 FusionEKF::FusionEKF()
-    : R_laser_(MatrixXd(2, 2)), R_radar_(MatrixXd(3, 3)), H_laser_(MatrixXd(2, 4)), Hj_(MatrixXd(3, 4)) {
+    : R_laser_(MatrixXd(2, 2)), R_radar_(MatrixXd(3, 3)), H_laser_(MatrixXd(2, 4)), Hj_(MatrixXd(3, 4)), ekf_(9, 9) {
     // measurement covariance matrix - laser
     R_laser_ << 0.0225, 0, 0, 0.0225;
 
     // measurement covariance matrix - radar
     R_radar_ << 0.09, 0, 0, 0, 0.0009, 0, 0, 0, 0.09;
 
-    /**
-    TODO:
-      * Finish initializing the FusionEKF.
-      * Set the process and measurement noises
-    */
+    // measurement matrix
+    H_laser_.row(0) << 1, 0, 0, 0;
+    H_laser_.row(1) << 0, 1, 0, 0;
 }
 
 /**
@@ -32,34 +30,43 @@ FusionEKF::FusionEKF()
  */
 FusionEKF::~FusionEKF() = default;
 
-void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
+void FusionEKF::initialize(const MeasurementPackage &measurement_pack) {
+    /**
+    TODO:
+      * Initialize the state ekf_.x_ with the first measurement.
+      * Create the covariance matrix.
+      * Remember: you'll need to convert radar from polar to cartesian coordinates.
+    */
+    // first measurement
+    cout << "EKF: " << endl;
+
+    if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
+        /**
+        Convert radar from polar to cartesian coordinates and initialize state.
+        */
+        std::cout << "Radar not supported yet" << std::endl;
+        return;
+    } else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
+        /**
+        Initialize state.
+        */
+        VectorXd x(4);
+        x << measurement_pack.raw_measurements_[0], measurement_pack.raw_measurements_[1], 0, 0;
+        ekf_.init(std::move(x));
+    }
+
+    //    ekf_.Init(x, P, F, H, R, Q);
+
+    // done initializing, no need to predict or update
+    is_initialized_ = true;
+}
+
+void FusionEKF::processMeasurement(const MeasurementPackage &measurement_pack) {
     /*****************************************************************************
      *  Initialization
      ****************************************************************************/
     if (!is_initialized_) {
-        /**
-        TODO:
-          * Initialize the state ekf_.x_ with the first measurement.
-          * Create the covariance matrix.
-          * Remember: you'll need to convert radar from polar to cartesian coordinates.
-        */
-        // first measurement
-        cout << "EKF: " << endl;
-        ekf_.x_ = VectorXd(4);
-        ekf_.x_ << 1, 1, 1, 1;
-
-        if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
-            /**
-            Convert radar from polar to cartesian coordinates and initialize state.
-            */
-        } else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
-            /**
-            Initialize state.
-            */
-        }
-
-        // done initializing, no need to predict or update
-        is_initialized_ = true;
+        initialize(measurement_pack);
         return;
     }
 
@@ -75,7 +82,10 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
        * Use noise_ax = 9 and noise_ay = 9 for your Q matrix.
      */
 
-    ekf_.Predict();
+    double dt = (measurement_pack.timestamp_ - previous_timestamp_) / 1000000.0;
+    previous_timestamp_ = measurement_pack.timestamp_;
+
+    ekf_.predict(dt);
 
     /*****************************************************************************
      *  Update
@@ -92,10 +102,10 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
         // TODO UpdateEKF
     } else {
         // Laser updates
-        //        ekf_.Update(measurement_pack.raw_measurements_);
+        ekf_.update(measurement_pack.raw_measurements_, H_laser_, R_laser_);
     }
 
     // print the output
-    cout << "x_ = " << ekf_.x_ << endl;
-    cout << "P_ = " << ekf_.P_ << endl;
+    cout << "x_ = " << ekf_.getX() << endl;
+    cout << "P_ = " << ekf_.getP() << endl;
 }
