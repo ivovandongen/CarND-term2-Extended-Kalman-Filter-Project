@@ -49,8 +49,8 @@ void FusionEKF::initialize(const MeasurementPackage &measurement_pack) {
 
         double rho = measurement_pack.raw_measurements_[0];
         double phi = measurement_pack.raw_measurements_[1];
-        auto point = CartesianCoordinate::fromPolar({rho, phi});
-        //todo rho_dot
+        double rho_dot = measurement_pack.raw_measurements_[2];
+        auto point = CartesianCoordinate::fromPolar({rho, phi, rho_dot});
 
         x << point.x, point.y, point.vx, point.vy;
     } else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
@@ -58,6 +58,8 @@ void FusionEKF::initialize(const MeasurementPackage &measurement_pack) {
         cout << "Initial Measurement: Laser." << endl;
         x << measurement_pack.raw_measurements_[0], measurement_pack.raw_measurements_[1], 0, 0;
     }
+
+    // Initialise EKF
     ekf_.init(std::move(x));
     std::cout << "x: " << ekf_.getX() << std::endl;
 
