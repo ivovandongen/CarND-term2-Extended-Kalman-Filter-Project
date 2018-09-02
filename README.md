@@ -1,4 +1,7 @@
-#
+# Extended Kalman Filter project
+Part of the udacity self-driving car nano-degree
+
+![png](data/screenshot.png)
 
 ## Build
 - `#>` `git submodule update --init --recursive`
