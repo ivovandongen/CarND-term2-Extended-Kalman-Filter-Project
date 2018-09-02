@@ -12,56 +12,44 @@ Eigen::VectorXd Tools::CalculateRMSE(const std::vector<Eigen::VectorXd> &estimat
     Eigen::VectorXd rmse(4);
     rmse << 0, 0, 0, 0;
 
-    // check the validity of the following inputs:
-    //  * the estimation vector size should not be zero
-    //  * the estimation vector size should equal ground truth vector size
-    if (estimations.empty() || (estimations.size() != ground_truth.size())) {
-        std::cout << "Estimations don't match the ground truth" << std::endl;
+    // Sanity checks
+    if (estimations.size() == 0 || estimations.size() != ground_truth.size()) {
+        std::cout << "Estimation or ground truth vector size is incorrect";
         return rmse;
     }
 
     // accumulate squared residuals
-    for (int i = 0; i < estimations.size(); ++i) {
-        Eigen::VectorXd res = estimations[i] - ground_truth[i];
-        res = res.array() * res.array();
-        rmse += res;
+    for (unsigned int i = 0; i < estimations.size(); ++i) {
+        Eigen::VectorXd residuals = (estimations[i] - ground_truth[i]);
+        residuals = residuals.array() * residuals.array();
+        rmse += residuals;
     }
 
-    // calculate the mean
-    rmse = rmse / estimations.size();
-
-    // calculate the squared root
-    rmse = rmse.array().sqrt();
-
-    // return the result
-    return rmse;
+    rmse /= estimations.size();
+    return rmse.array().sqrt();
 }
 
 Eigen::MatrixXd Tools::CalculateJacobian(const Eigen::VectorXd &x_state) {
     Eigen::MatrixXd Hj(3, 4);
 
-    // recover state parameters
     double px = x_state(0);
     double py = x_state(1);
     double vx = x_state(2);
     double vy = x_state(3);
 
+    double c1 = px * px + py * py;
+    double c2 = sqrt(c1);
+
     // check division by zero
-    if (px == 0 && py == 0) {
-        std::cout << "Division by 0" << std::endl;
+    if (c1 < 0.0001) {
+        std::cout << "Jacobian - error division by zero" << std::endl;
         return Hj;
     }
 
     // compute the Jacobian matrix
-    double c1 = px * px + py * py;
-    double c2 = sqrt(c1);
-    double c3 = pow(c1, 3 / 2);
-    double c4 = vx * py;
-    double c5 = vy * px;
-
     Hj.row(0) << px / c2, py / c2, 0, 0;
-    Hj.row(1) << -(py / c1), px / c1, 0, 0;
-    Hj.row(2) << py * (c4 - c5) / c3, px * (c5 - c4) / c3, px / c2, py / c2;
+    Hj.row(1) << -py / (c2 * c2), px / (c2 * c2), 0, 0;
+    Hj.row(2) << py * (vx * py - vy * px) / (c2 * c2 * c2), px * (vy * px - vx * py) / (c2 * c2 * c2), px / c2, py / c2;
 
     return Hj;
 }

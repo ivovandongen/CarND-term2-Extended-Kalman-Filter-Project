@@ -41,7 +41,7 @@ public:
      * Updates the state by using Extended Kalman Filter equations
      * @param z The measurement at k+1
      */
-    void updateEKF(const Eigen::VectorXd &z);
+    void updateEKF(const Eigen::VectorXd &z, const Eigen::MatrixXd &Hj, const Eigen::MatrixXd &R);
 
     const Eigen::VectorXd &getX() const { return x_; }
 

@@ -123,6 +123,12 @@ int main() {
 
                     VectorXd RMSE = tools.CalculateRMSE(estimations, ground_truth);
 
+//                    std::cout << RMSE << std::endl;
+
+                    // print the output
+                    cout << "x_ = " << fusionEKF.getKalmanFilter().getX() << endl;
+                    cout << "P_ = " << fusionEKF.getKalmanFilter().getP() << endl;
+
                     json msgJson;
                     msgJson["estimate_x"] = p_x;
                     msgJson["estimate_y"] = p_y;
